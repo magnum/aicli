@@ -86,9 +86,9 @@ module AiCli
       Commands::Update.run
     end
 
-    map %w[--version -v] => :__print_version
+    map %w[--version -v] => :version
     desc 'version', 'Print version'
-    def __print_version
+    def version
       puts AiCli::VERSION
     end
 
