@@ -1,7 +1,10 @@
-/nbproject/
 /.idea/*
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
+*.gem
+/.bundle/
+/vendor/bundle/
+/Gemfile.lock

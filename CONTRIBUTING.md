@@ -2,72 +2,39 @@
 
 ## Setting up the project
 
-Use [nvm](https://nvm.sh) to use the appropriate Node.js version from `.nvmrc`:
+Requires Ruby 3.0+.
+
+Install dependencies with Bundler:
 
 ```sh
-nvm i
+bundle install
 ```
 
-Install the dependencies using npm:
+## Running locally
 
 ```sh
-npm i
+bundle exec bin/ai --help
+bundle exec bin/ai config set OPENAI_KEY=<your token>
+bundle exec bin/ai list all log files
 ```
 
-## Building the project
-
-Run the `build` script:
+## Building the gem
 
 ```sh
-npm build
+gem build ai-shell.gemspec
+gem install ./ai-shell-*.gem
 ```
 
-The package is bundled using [pkgroll](https://github.com/privatenumber/pkgroll) (Rollup). It infers the entry-points from `package.json` so there are no build configurations.
-
-### Development (watch) mode
-
-During development, you can use the watch flag (`--watch, -w`) to automatically rebuild the package on file changes:
+Or with Rake:
 
 ```sh
-npm build -w
+bundle exec rake install
 ```
 
-## Running the package locally
+## Project structure
 
-Since pkgroll knows the entry-point is a binary (being in `package.json#bin`), it automatically adds the Node.js hashbang to the top of the file, and chmods it so it's executable.
-
-You can run the distribution file in any directory:
-
-```sh
-./dist/cli.mjs
 ```
-
-Or in non-UNIX environments, you can use Node.js to run the file:
-
-```sh
-node ./dist/cli.mjs
+bin/           # Executables (ai, ai-shell)
+lib/ai_shell/  # Ruby source
+locales/       # i18n JSON files
 ```
-
-## Check the lint in order to pass
-
-First, install prettier.
-
-```sh
-npm install -g prettier
-```
-
-Once Prettier is installed, you can run it on a single file or multiple files using the following commands:
-
-1. For a single file:
-
-```sh
-prettier --write path/to/your/file.js
-```
-
-2. For a multiple file:
-
-```sh
-prettier --write "src/**/*.js"
-```
-
-If you use Vscode, It is recommended to use [prettier-vscode](https://github.com/prettier/prettier-vscode)

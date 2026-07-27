@@ -8,13 +8,6 @@
 <h4 align="center">
    A CLI that converts natural language to shell commands.
 </h4>
-<p align="center">
-   <a href="https://www.npmjs.com/package/@builder.io/ai-shell"><img src="https://img.shields.io/npm/v/@builder.io/ai-shell" alt="Current version"></a>
-</p>
-
-<p align="center">
-   <img alt="Gif Demo" src="https://user-images.githubusercontent.com/844291/230413167-773845e7-4c9f-44a5-909c-02802b5e49f6.gif" >
-<p>
 
 <p align="center">
    Inspired by the <a href="https://githubnext.com/projects/copilot-cli">GitHub Copilot X CLI</a>, but open source for everyone.
@@ -24,14 +17,25 @@
 
 # AI Shell
 
+Ruby rewrite of the original [@builder.io/ai-shell](https://github.com/BuilderIO/ai-shell) CLI.
+
 ## Setup
 
-> The minimum supported version of Node.js is v14
+> Requires Ruby 3.0+
 
 1. Install _ai shell_:
 
    ```sh
-   npm install -g @builder.io/ai-shell
+   gem install ai-shell
+   ```
+
+   Or from this repository:
+
+   ```sh
+   bundle install
+   bundle exec rake install
+   # or
+   gem build ai-shell.gemspec && gem install ./ai-shell-*.gem
    ```
 
 2. Retrieve your API key from [OpenAI](https://platform.openai.com/account/api-keys)
@@ -58,27 +62,11 @@ For example:
 ai list all log files
 ```
 
-Then you will get an output like this, where you can choose to run the suggested command, revise the command via a prompt, or cancel:
-
-```bash
-◇  Your script:
-│
-│  find . -name "*.log"
-│
-◇  Explanation:
-│
-│  1. Searches for all files with the extension ".log" in the current directory and any subdirectories.
-│
-◆  Run this script?
-│  ● ✅ Yes (Lets go!)
-│  ○ 📝 Revise
-│  ○ ❌ Cancel
-└
-```
+Then you will get an output where you can choose to run the suggested command, revise it via a prompt, edit it, copy it, or cancel.
 
 ### Special characters
 
-Note that some shells handle certain characters like the `?` or `*` or things that look like file paths specially. If you are getting strange behaviors, you can wrap the prompt in quotes to avoid issues, like below:
+Some shells handle characters like `?` or `*` specially. Wrap the prompt in quotes if needed:
 
 ```bash
 ai 'what is my ip address'
@@ -86,42 +74,19 @@ ai 'what is my ip address'
 
 ### Chat mode
 
-![Chat demo](https://user-images.githubusercontent.com/844291/232889699-e13fb3fe-1659-4583-80ee-6c58d1bcbd06.gif)
-
 ```bash
 ai chat
 ```
 
-With this mode, you can engage in a conversation with the AI and receive helpful responses in a natural, conversational manner directly through the CLI:
-
-```sh
-┌  Starting new conversation
-│
-◇  You:
-│  how do I serve a redirect in express
-│
-◇  AI Shell:
-
-In Express, you can use the `redirect()` method to serve a redirect. The `redirect()` method takes one argument, which is the URL that you want to redirect to.
-
-Here's an example:
-
-\`\`\`js
-app.get('/oldurl', (req, res) => {
-  res.redirect('/newurl');
-});
-\`\`\`
-```
+Engage in a conversation with the AI directly through the CLI.
 
 ### Silent mode (skip explanations)
-
-You can disable and skip the explanation section by using the flag `-s` or `--silent`
 
 ```bash
 ai -s list all log files
 ```
 
-or save the option as a preference using this command:
+Or save the preference:
 
 ```bash
 ai config set SILENT_MODE=true
@@ -129,17 +94,13 @@ ai config set SILENT_MODE=true
 
 ### Custom API endpoint
 
-You can custom OpenAI API endpoint to set OPENAI_API_ENDPOINT（default: `https://api.openai.com/v1`）
-
 ```sh
 ai config set OPENAI_API_ENDPOINT=<your proxy endpoint>
 ```
 
+Default: `https://api.openai.com/v1`
+
 ### Set Language
-
-![Language UI](https://user-images.githubusercontent.com/1784873/235330029-0a3b394c-d797-41d6-8717-9a6b487f1ae8.gif)
-
-The AI Shell's default language is English, but you can easily switch to your preferred language by using the corresponding language keys, as shown below:
 
 | Language            | Key     |
 | ------------------- | ------- |
@@ -157,84 +118,55 @@ The AI Shell's default language is English, but you can easily switch to your pr
 | Arabic              | ar      |
 | Portuguese          | pt      |
 | Turkish             | tr      |
-
-For instance, if you want to switch to Simplified Chinese, you can do so by setting the LANGUAGE value to zh-Hans:
+| Indonesian          | id      |
+| Italian             | it      |
 
 ```sh
 ai config set LANGUAGE=zh-Hans
 ```
 
-This will set your language to Simplified Chinese.
-
 ### Config UI
-
-To use a more visual interface to view and set config options you can type:
 
 ```bash
 ai config
 ```
 
-To get an interactive UI like below:
-
-```bash
-◆  Set config:
-│  ○ OpenAI Key
-│  ○ OpenAI API Endpoint
-│  ○ Silent Mode
-│  ● Model (gpt-4o-mini)
-│  ○ Language
-│  ○ Cancel
-└
-```
-
 ### Upgrading
-
-Check the installed version with:
 
 ```bash
 ai --version
+gem update ai-shell
 ```
 
-If it's not the [latest version](https://github.com/BuilderIO/ai-shell/tags), run:
-
-```bash
-npm update -g @builder.io/ai-shell
-```
-
-Or just use AI shell:
+Or:
 
 ```bash
 ai update
+```
+
+## Development
+
+```sh
+bundle install
+bundle exec bin/ai --help
+bundle exec bin/ai config set OPENAI_KEY=<your token>
+bundle exec bin/ai list all log files
 ```
 
 ## Common Issues
 
 ### 429 error
 
-Some users are reporting a 429 from OpenAI. This is due to incorrect billing setup or excessive quota usage. Please follow [this guide](https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details) to fix it.
+This is due to incorrect billing setup or excessive quota usage. Please follow [this guide](https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details) to fix it.
 
-You can activate billing at [this link](https://platform.openai.com/account/billing/overview). Make sure to add a payment method if not under an active grant from OpenAI.
+You can activate billing at [this link](https://platform.openai.com/account/billing/overview).
 
 ## Motivation
 
 I am not a bash wizard, and am dying for access to the copilot CLI, and got impatient.
 
-## Contributing
-
-If you want to help fix a bug or implement a feature in [Issues](https://github.com/BuilderIO/ai-shell/issues) (tip: look out for the `help wanted` label), checkout the [Contribution Guide](CONTRIBUTING.md) to learn how to setup the project.
-
 ## Credit
 
 - Thanks to GitHub Copilot for their amazing tools and the idea for this.
 - Thanks to Hassan and his work on [aicommits](https://github.com/Nutlope/aicommits), which inspired the workflow and some parts of the code and flows
-
-<br><br>
-
-<p align="center">
-   <a href="https://www.builder.io/m/developers">
-      <picture>
-         <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/844291/230786554-eb225eeb-2f6b-4286-b8c2-535b1131744a.png">
-         <img width="250" alt="Made with love by Builder.io" src="https://user-images.githubusercontent.com/844291/230786555-a58479e4-75f3-4222-a6eb-74c5af953eac.png">
-       </picture>
-   </a>
-</p>
+- Original Node.js implementation by [Builder.io](https://www.builder.io)
