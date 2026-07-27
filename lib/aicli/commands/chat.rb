@@ -11,16 +11,14 @@ module AiCli
 
       def run
         config = Helpers::Config.get
-        key = config['OPENAI_KEY']
-        model = config['MODEL']
-        api_endpoint = config['OPENAI_API_ENDPOINT']
-        chat_history = []
+        chat = Helpers::Completion.start_chat(config)
 
         pastel = Pastel.new
         prompt = TTY::Prompt.new(interrupt: :exit)
 
         puts ''
         puts "┌  #{Helpers::I18n.t('Starting new conversation')}"
+        puts pastel.dim("   #{config['PROVIDER']} / #{config['MODEL']}")
 
         loop do
           user_prompt = prompt.ask(pastel.cyan("#{Helpers::I18n.t('You')}:")) do |q|
@@ -35,22 +33,25 @@ module AiCli
 
           spinner = TTY::Spinner.new("[:spinner] #{Helpers::I18n.t('THINKING...')}", format: :dots)
           spinner.auto_spin
+          started = false
 
-          chat_history << { 'role' => 'user', 'content' => user_prompt }
-
-          stream_lines = Helpers::Completion.generate_completion(
-            prompt: chat_history,
-            key: key,
-            model: model,
-            api_endpoint: api_endpoint
+          Helpers::Completion.stream_chat_message(
+            chat,
+            user_prompt,
+            writer: lambda { |chunk|
+              unless started
+                spinner.success(pastel.green('aicli:'))
+                puts ''
+                started = true
+              end
+              print chunk
+            }
           )
-          enumerator = stream_lines.each
-          read_response = Helpers::Completion.read_data(enumerator)
 
-          spinner.success(pastel.green('aicli:'))
-          puts ''
-          full_response = read_response.call(->(chunk) { print chunk })
-          chat_history << { 'role' => 'assistant', 'content' => full_response }
+          unless started
+            spinner.success(pastel.green('aicli:'))
+            puts ''
+          end
           puts ''
           puts ''
         end

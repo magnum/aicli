@@ -14,7 +14,9 @@ bundle install
 
 ```sh
 bundle exec bin/aicli --help
+bundle exec bin/aicli config set PROVIDER=openai
 bundle exec bin/aicli config set OPENAI_KEY=<your token>
+# or: PROVIDER=anthropic + ANTHROPIC_KEY=<your token>
 bundle exec bin/aicli list all log files
 ```
 

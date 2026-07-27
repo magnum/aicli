@@ -1,219 +1,66 @@
 # frozen_string_literal: true
 
-require 'json'
-require 'net/http'
-require 'uri'
-require 'thread'
-
 module AiCli
   module Helpers
     module Completion
       EXPLAIN_IN_SECOND_REQUEST = true
-      SHELL_CODE_EXCLUSIONS = [/```[a-zA-Z]*\n/i, /```[a-zA-Z]*/i, "\n"].freeze
+      SHELL_CODE_EXCLUSIONS = [/```[a-zA-Z]*\n?/i, /```[a-zA-Z]*/i, "\n"].freeze
 
       module_function
 
-      def get_script_and_info(prompt:, key:, api_endpoint:, model: nil)
-        stream = generate_completion(
-          prompt: full_prompt(prompt),
-          key: key,
-          model: model,
-          api_endpoint: api_endpoint
-        )
-        enumerator = stream.each
-
+      def get_script_and_info(prompt:, config:)
         {
-          read_script: read_data(enumerator, *SHELL_CODE_EXCLUSIONS),
-          read_info: read_data(enumerator, *SHELL_CODE_EXCLUSIONS)
+          read_script: stream_prompt(full_prompt(prompt), config: config, exclusions: SHELL_CODE_EXCLUSIONS),
+          read_info: ->(_writer) { '' }
         }
       end
 
-      def get_explanation(script:, key:, api_endpoint:, model: nil)
-        stream = generate_completion(
-          prompt: explanation_prompt(script),
-          key: key,
-          model: model,
-          api_endpoint: api_endpoint
-        )
-        { read_explanation: read_data(stream.each) }
+      def get_explanation(script:, config:)
+        { read_explanation: stream_prompt(explanation_prompt(script), config: config) }
       end
 
-      def get_revision(prompt:, code:, key:, api_endpoint:, model: nil)
-        stream = generate_completion(
-          prompt: revision_prompt(prompt, code),
-          key: key,
-          model: model,
-          api_endpoint: api_endpoint
-        )
-        { read_script: read_data(stream.each, *SHELL_CODE_EXCLUSIONS) }
-      end
-
-      def get_models(key, api_endpoint)
-        uri = URI.join(ensure_trailing_slash(api_endpoint), 'models')
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = uri.scheme == 'https'
-
-        request = Net::HTTP::Get.new(uri)
-        request['Authorization'] = "Bearer #{key}"
-        request['Content-Type'] = 'application/json'
-
-        response = http.request(request)
-        raise KnownError, "Failed to list models: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
-
-        data = JSON.parse(response.body)
-        data.fetch('data', []).select { |m| m['object'] == 'model' }
-      end
-
-      # Returns a live Enumerator of SSE "data: ..." lines
-      def generate_completion(prompt:, key:, api_endpoint:, model: nil, number: 1)
-        messages = if prompt.is_a?(Array)
-                     prompt
-                   else
-                     [{ 'role' => 'user', 'content' => prompt }]
-                   end
-
-        uri = URI.join(ensure_trailing_slash(api_endpoint), 'chat/completions')
-        body = {
-          model: model || 'gpt-4o-mini',
-          messages: messages,
-          n: [number, 10].min,
-          stream: true
+      def get_revision(prompt:, code:, config:)
+        {
+          read_script: stream_prompt(
+            revision_prompt(prompt, code),
+            config: config,
+            exclusions: SHELL_CODE_EXCLUSIONS
+          )
         }
-
-        queue = Queue.new
-        error_box = []
-
-        Thread.new do
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = uri.scheme == 'https'
-          http.read_timeout = 120
-
-          request = Net::HTTP::Post.new(uri)
-          request['Authorization'] = "Bearer #{key}"
-          request['Content-Type'] = 'application/json'
-          request['Accept'] = 'text/event-stream'
-          request.body = JSON.generate(body)
-
-          http.request(request) do |response|
-            unless response.is_a?(Net::HTTPSuccess)
-              error_box << [:api, response.code.to_i, response.body]
-              queue << :done
-              next
-            end
-
-            buffer = +''
-            response.read_body do |chunk|
-              buffer << chunk
-              while (eol = buffer.index("\n"))
-                line = buffer.slice!(0..eol).strip
-                queue << line if line.start_with?('data: ')
-              end
-            end
-          end
-          queue << :done
-        rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-          error_box << [:network, uri.host, e.message]
-          queue << :done
-        rescue StandardError => e
-          error_box << [:other, e]
-          queue << :done
-        end
-
-        Enumerator.new do |yielder|
-          loop do
-            item = queue.pop
-            break if item == :done
-
-            yielder << item
-          end
-
-          if (err = error_box.first)
-            case err[0]
-            when :api
-              handle_api_error(err[1], err[2])
-            when :network
-              raise KnownError,
-                    "Error connecting to #{err[1]}. Are you connected to the internet? (#{err[2]})"
-            when :other
-              raise err[1]
-            end
-          end
-        end
       end
 
-      def read_data(enumerator, *excluded)
+      def get_models(provider)
+        Llm.list_chat_models(provider)
+      end
+
+      # Streams a single-turn completion. Returns a callable that takes a writer.
+      def stream_prompt(prompt, config:, exclusions: [])
         lambda do |writer|
-          data = +''
-          data_start = false
-          buffer = +''
-          excluded_prefix = excluded.first
+          stream_to_writer(prompt, config: config, exclusions: exclusions, writer: writer)
+        end
+      end
 
-          loop do
-            chunk = enumerator.next
-            payloads = chunk.to_s.split("\n\n")
+      # Multi-turn chat helper used by `aicli chat`.
+      def start_chat(config)
+        Llm.build_chat(config)
+      end
 
-            payloads.each do |payload|
-              return data if payload.include?('[DONE]')
+      def stream_chat_message(chat, message, writer:)
+        data = +''
 
-              next unless payload.start_with?('data:')
+        begin
+          chat.ask(message) do |chunk|
+            content = chunk.content.to_s
+            next if content.empty?
 
-              content = parse_content(payload)
-
-              unless data_start
-                buffer << content
-                if excluded_prefix.nil? || buffer.match?(excluded_prefix)
-                  data_start = true
-                  buffer = +''
-                  break if excluded_prefix
-                end
-              end
-
-              next unless data_start && !content.empty?
-
-              cleaned = StripRegexPatterns.call(content, excluded)
-              data << cleaned
-              writer.call(cleaned)
-            end
-          rescue StopIteration
-            break
+            data << content
+            writer.call(content)
           end
-
-          data
-        end
-      end
-
-      def parse_content(payload)
-        raw = payload.sub(/^data:\s*/, '')
-        delta = JSON.parse(raw.strip)
-        delta.dig('choices', 0, 'delta', 'content') || ''
-      rescue JSON::ParserError => e
-        "Error with JSON.parse and #{payload}.\n#{e}"
-      end
-
-      def handle_api_error(status, body)
-        message_string = begin
-          JSON.pretty_generate(JSON.parse(body))
-        rescue StandardError
-          body.to_s
+        rescue RubyLLM::Error, RubyLLM::ConfigurationError => e
+          handle_ruby_llm_error(e)
         end
 
-        if status == 429
-          raise KnownError, <<~MSG
-            Request to OpenAI failed with status 429. This is due to incorrect billing setup or excessive quota usage. Please follow this guide to fix it: https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details
-
-            You can activate billing here: https://platform.openai.com/account/billing/overview . Make sure to add a payment method if not under an active grant from OpenAI.
-
-            Full message from OpenAI:
-
-            #{message_string}
-          MSG
-        end
-
-        raise KnownError, <<~MSG
-          Request to OpenAI failed with status #{status}:
-
-          #{message_string}
-        MSG
+        data
       end
 
       def explanation_prompt(script)
@@ -267,9 +114,68 @@ module AiCli
         PROMPT
       end
 
-      def ensure_trailing_slash(endpoint)
-        endpoint.end_with?('/') ? endpoint : "#{endpoint}/"
+      def stream_to_writer(prompt, config:, exclusions:, writer:)
+        chat = Llm.build_chat(config)
+        data = +''
+        data_start = exclusions.empty?
+        buffer = +''
+        excluded_prefix = exclusions.first
+
+        begin
+          chat.ask(prompt) do |chunk|
+            content = chunk.content.to_s
+            next if content.empty?
+
+            unless data_start
+              buffer << content
+              next unless excluded_prefix.nil? || buffer.match?(excluded_prefix)
+
+              data_start = true
+              remainder = StripRegexPatterns.call(buffer, exclusions)
+              buffer = +''
+              next if remainder.empty?
+
+              data << remainder
+              writer.call(remainder)
+              next
+            end
+
+            cleaned = StripRegexPatterns.call(content, exclusions)
+            next if cleaned.empty?
+
+            data << cleaned
+            writer.call(cleaned)
+          end
+        rescue RubyLLM::Error, RubyLLM::ConfigurationError => e
+          handle_ruby_llm_error(e)
+        end
+
+        data
       end
+
+      def handle_ruby_llm_error(error)
+        message = error.message.to_s
+
+        if error.is_a?(RubyLLM::RateLimitError) || error.is_a?(RubyLLM::PaymentRequiredError) ||
+           message.match?(/rate.?limit|quota|billing/i)
+          raise KnownError, <<~MSG
+            Request to the LLM provider failed (rate limit / quota).
+
+            Check your plan and billing details for the configured provider, then try again.
+
+            Full message:
+
+            #{message}
+          MSG
+        end
+
+        raise KnownError, <<~MSG
+          Request to the LLM provider failed:
+
+          #{message}
+        MSG
+      end
+      private_class_method :stream_to_writer, :handle_ruby_llm_error
     end
   end
 end

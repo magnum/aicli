@@ -14,9 +14,6 @@ module AiCli
       init_i18n
 
       config = Helpers::Config.get
-      key = config['OPENAI_KEY']
-      model = config['MODEL']
-      api_endpoint = config['OPENAI_API_ENDPOINT']
       skip_explanation = silent_mode || config['SILENT_MODE']
 
       pastel = Pastel.new
@@ -30,9 +27,7 @@ module AiCli
 
       result = Helpers::Completion.get_script_and_info(
         prompt: the_prompt,
-        key: key,
-        model: model,
-        api_endpoint: api_endpoint
+        config: config
       )
 
       spinner.success(Helpers::I18n.t('Your script') + ':')
@@ -50,9 +45,7 @@ module AiCli
         if info.nil? || info.empty?
           explanation = Helpers::Completion.get_explanation(
             script: script,
-            key: key,
-            model: model,
-            api_endpoint: api_endpoint
+            config: config
           )
           spinner.success(Helpers::I18n.t('Explanation') + ':')
           puts ''
@@ -65,7 +58,7 @@ module AiCli
         end
       end
 
-      run_or_revise_flow(script, key, model, api_endpoint, silent_mode)
+      run_or_revise_flow(script, config, silent_mode)
     end
 
     def init_i18n
@@ -102,14 +95,13 @@ module AiCli
     end
 
     def run_script(script)
-      pastel = Pastel.new
       puts "└  #{Helpers::I18n.t('Running')}: #{script}"
       puts ''
       system(ENV['SHELL'] || 'bash', '-c', script)
       Helpers::ShellHistory.append(script)
     end
 
-    def run_or_revise_flow(script, key, model, api_endpoint, silent_mode)
+    def run_or_revise_flow(script, config, silent_mode)
       prompt = TTY::Prompt.new(interrupt: :exit)
       empty_script = script.strip.empty?
 
@@ -132,7 +124,7 @@ module AiCli
         new_script = prompt.ask(Helpers::I18n.t('you can edit script here'), default: script)
         run_script(new_script) if new_script && !new_script.empty?
       when :revise
-        revision_flow(script, key, model, api_endpoint, silent_mode)
+        revision_flow(script, config, silent_mode)
       when :copy
         Clipboard.copy(script)
         puts "└  #{Helpers::I18n.t('Copied to clipboard!')}"
@@ -142,7 +134,7 @@ module AiCli
       end
     end
 
-    def revision_flow(current_script, key, model, api_endpoint, silent_mode)
+    def revision_flow(current_script, config, silent_mode)
       pastel = Pastel.new
       revision = ask_revision
 
@@ -152,9 +144,7 @@ module AiCli
       result = Helpers::Completion.get_revision(
         prompt: revision,
         code: current_script,
-        key: key,
-        model: model,
-        api_endpoint: api_endpoint
+        config: config
       )
 
       spinner.success(Helpers::I18n.t('Your new script') + ':')
@@ -170,9 +160,7 @@ module AiCli
 
         explanation = Helpers::Completion.get_explanation(
           script: script,
-          key: key,
-          model: model,
-          api_endpoint: api_endpoint
+          config: config
         )
 
         info_spinner.success(Helpers::I18n.t('Explanation') + ':')
@@ -183,7 +171,7 @@ module AiCli
         puts pastel.dim('•')
       end
 
-      run_or_revise_flow(script, key, model, api_endpoint, silent_mode)
+      run_or_revise_flow(script, config, silent_mode)
     end
 
     private_class_method :init_i18n, :examples, :ask_prompt, :ask_revision,

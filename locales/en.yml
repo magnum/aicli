@@ -8,14 +8,20 @@ Please set your OpenAI API key via `ai config set OPENAI_KEY=<your token>`: Plea
   set your OpenAI API key via `ai config set OPENAI_KEY=<your token>`
 Set config: Set config
 Enter your OpenAI API key: Enter your OpenAI API key
+Enter your Anthropic API key: Enter your Anthropic API key
 "(not set)": "(not set)"
+Provider: Provider
+Pick a provider: Pick a provider
 OpenAI Key: OpenAI Key
+Anthropic Key: Anthropic Key
 Please enter a key: Please enter a key
 OpenAI API Endpoint: OpenAI API Endpoint
 Enter your OpenAI API Endpoint: Enter your OpenAI API Endpoint
 Silent Mode: Silent Mode
 Enable silent mode?: Enable silent mode?
 Model: Model
+Pick a model.: Pick a model.
+No models found for this provider.: No models found for this provider.
 Enter the model you want to use: Enter the model you want to use
 Language: Language
 Enter the language you want to use: Enter the language you want to use

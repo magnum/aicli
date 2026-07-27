@@ -11,15 +11,17 @@ module AiCli
       LEGACY_CONFIG_PATH = File.join(Dir.home, '.ai-shell')
 
       CONFIG_PARSERS = {
+        'PROVIDER' => lambda { |provider|
+          Llm.normalize_provider(provider)
+        },
         'OPENAI_KEY' => lambda { |key|
-          if key.nil? || key.empty?
-            raise KnownError,
-                  "Please set your OpenAI API key via `#{Constants::COMMAND_NAME} config set OPENAI_KEY=<your token>`"
-          end
-          key
+          key.to_s
+        },
+        'ANTHROPIC_KEY' => lambda { |key|
+          key.to_s
         },
         'MODEL' => lambda { |model|
-          model.nil? || model.empty? ? 'gpt-4o-mini' : model
+          model.to_s
         },
         'SILENT_MODE' => lambda { |mode|
           mode.to_s.downcase == 'true'
@@ -41,6 +43,11 @@ module AiCli
         CONFIG_PARSERS.each do |key, parser|
           value = cli_config&.dig(key) || config[key]
           parsed[key] = parser.call(value)
+        end
+
+        raw_model = cli_config&.dig('MODEL') || config['MODEL']
+        if raw_model.nil? || raw_model.to_s.empty?
+          parsed['MODEL'] = Llm.default_model_for(parsed['PROVIDER'])
         end
 
         parsed
@@ -72,8 +79,12 @@ module AiCli
         loop do
           config = get
           choice = prompt.select("#{I18n.t('Set config')}:") do |menu|
+            menu.choice "#{I18n.t('Provider')} (#{display_hint(config, 'PROVIDER')})",
+                        'PROVIDER'
             menu.choice "#{I18n.t('OpenAI Key')} (#{display_hint(config, 'OPENAI_KEY') { |v| "sk-...#{v[-3..]}" }})",
                         'OPENAI_KEY'
+            menu.choice "#{I18n.t('Anthropic Key')} (#{display_hint(config, 'ANTHROPIC_KEY') { |v| "...#{v[-3..]}" }})",
+                        'ANTHROPIC_KEY'
             menu.choice "#{I18n.t('OpenAI API Endpoint')} (#{display_hint(config, 'OPENAI_API_ENDPOINT')})",
                         'OPENAI_API_ENDPOINT'
             menu.choice "#{I18n.t('Silent Mode')} (#{display_hint(config, 'SILENT_MODE')})",
@@ -86,11 +97,27 @@ module AiCli
           end
 
           case choice
+          when 'PROVIDER'
+            provider = prompt.select(I18n.t('Pick a provider')) do |menu|
+              Llm::PROVIDERS.each { |p| menu.choice p, p }
+            end
+            updates = [['PROVIDER', provider]]
+            current_model = get['MODEL']
+            known_ids = Completion.get_models(provider).map { |m| m['id'] }
+            unless known_ids.include?(current_model)
+              updates << ['MODEL', Llm.default_model_for(provider)]
+            end
+            set(updates)
           when 'OPENAI_KEY'
             key = prompt.ask(I18n.t('Enter your OpenAI API key')) do |q|
               q.required true
             end
             set([['OPENAI_KEY', key]])
+          when 'ANTHROPIC_KEY'
+            key = prompt.ask(I18n.t('Enter your Anthropic API key')) do |q|
+              q.required true
+            end
+            set([['ANTHROPIC_KEY', key]])
           when 'OPENAI_API_ENDPOINT'
             api_endpoint = prompt.ask(I18n.t('Enter your OpenAI API Endpoint'))
             set([['OPENAI_API_ENDPOINT', api_endpoint]]) if api_endpoint
@@ -99,9 +126,16 @@ module AiCli
             set([['SILENT_MODE', silent ? 'true' : 'false']])
           when 'MODEL'
             cfg = get
-            models = Completion.get_models(cfg['OPENAI_KEY'], cfg['OPENAI_API_ENDPOINT'])
-            model = prompt.select('Pick a model.') do |menu|
-              models.each { |m| menu.choice m['id'], m['id'] }
+            models = Completion.get_models(cfg['PROVIDER'])
+            if models.empty?
+              puts pastel.yellow(I18n.t('No models found for this provider.'))
+              next
+            end
+            model = prompt.select(I18n.t('Pick a model.')) do |menu|
+              models.each do |m|
+                label = m['name'].empty? || m['name'] == m['id'] ? m['id'] : "#{m['name']} (#{m['id']})"
+                menu.choice label, m['id']
+              end
             end
             set([['MODEL', model]])
           when 'LANGUAGE'
@@ -149,7 +183,7 @@ module AiCli
       end
 
       def display_hint(config, key)
-        if config.key?(key) && !config[key].nil?
+        if config.key?(key) && !config[key].nil? && !(config[key].respond_to?(:empty?) && config[key].empty?)
           value = config[key]
           block_given? ? yield(value) : value.to_s
         else

@@ -1,3 +1,14 @@
+## 0.2.0
+
+- Add Anthropic provider alongside OpenAI
+- Route all LLM calls through RubyLLM
+- Choose provider and model in `aicli config` (model list from RubyLLM registry)
+- Config keys: `PROVIDER`, `ANTHROPIC_KEY` (plus existing `OPENAI_KEY` / `MODEL`)
+
+## 0.1.0
+
+- Initial RubyGems release as `aicli`
+
 ## 1.0.12
 
 - Bug fixes

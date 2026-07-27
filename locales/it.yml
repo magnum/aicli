@@ -8,14 +8,20 @@ Please set your OpenAI API key via `ai config set OPENAI_KEY=<your token>`: Per 
   imposta la tua chiave API OpenAI tramite `ai config set OPENAI_KEY=<your token>`
 Set config: Imposta la configurazione
 Enter your OpenAI API key: Inserisci la tua chiave API OpenAI
+Enter your Anthropic API key: Inserisci la tua chiave API Anthropic
 "(not set)": "(non impostato)"
+Provider: Provider
+Pick a provider: Scegli un provider
 OpenAI Key: Chiave OpenAI
+Anthropic Key: Chiave Anthropic
 Please enter a key: Per favore inserisci una chiave
 OpenAI API Endpoint: Endpoint API OpenAI
 Enter your OpenAI API Endpoint: Inserisci il tuo endpoint API OpenAI
 Silent Mode: Modalità silenziosa
 Enable silent mode?: Abilitare la modalità silenziosa?
 Model: Modello
+Pick a model.: Scegli un modello.
+No models found for this provider.: Nessun modello trovato per questo provider.
 Enter the model you want to use: Inserisci il modello che vuoi utilizzare
 Language: Lingua
 Enter the language you want to use: Inserisci la lingua che vuoi utilizzare

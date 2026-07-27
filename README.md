@@ -38,15 +38,24 @@ Ruby port by [Antonio Molinari](https://github.com/magnum), inspired by the orig
    gem build aicli.gemspec && gem install ./aicli-*.gem
    ```
 
-2. Retrieve your API key from [OpenAI](https://platform.openai.com/account/api-keys)
+2. Choose a provider and set the matching API key.
 
-   > Note: If you haven't already, you'll have to create an account and set up billing.
-
-3. Set the key so aicli can use it:
+   **OpenAI** (default) — key from [OpenAI](https://platform.openai.com/account/api-keys):
 
    ```sh
+   aicli config set PROVIDER=openai
    aicli config set OPENAI_KEY=<your token>
    ```
+
+   **Anthropic** — key from [Anthropic](https://console.anthropic.com/settings/keys):
+
+   ```sh
+   aicli config set PROVIDER=anthropic
+   aicli config set ANTHROPIC_KEY=<your token>
+   ```
+
+   Or use the interactive UI (`aicli config`) to pick provider, key, and model.
+   Model lists come from the [RubyLLM](https://rubyllm.com/models/) registry.
 
    This will create a `.aicli` file in your home directory.
 
@@ -94,7 +103,20 @@ Or save the preference:
 aicli config set SILENT_MODE=true
 ```
 
-### Custom API endpoint
+### Provider and model
+
+```sh
+aicli config set PROVIDER=openai      # or anthropic
+aicli config set MODEL=gpt-4o-mini    # provider-specific model id
+```
+
+Defaults: `gpt-4o-mini` (OpenAI), `claude-sonnet-4-6` (Anthropic).
+
+LLM calls go through [RubyLLM](https://rubyllm.com/), so chat streaming and model metadata stay provider-agnostic.
+
+### Custom OpenAI API endpoint
+
+Useful for OpenAI-compatible proxies (ignored for Anthropic):
 
 ```sh
 aicli config set OPENAI_API_ENDPOINT=<your proxy endpoint>
@@ -148,20 +170,32 @@ aicli update
 
 ## Development
 
+Run the local checkout (not the installed gem) with Bundler from this directory:
+
 ```sh
 bundle install
-bundle exec bin/aicli --help
-bundle exec bin/aicli config set OPENAI_KEY=<your token>
-bundle exec bin/aicli list all log files
+
+bundle exec bin/ai --help
+bundle exec bin/ai config
+bundle exec bin/ai chat
+bundle exec bin/ai list all log files
+```
+
+`bin/aicli` is equivalent to `bin/ai`. `bundle exec` loads dependencies from the Gemfile and code from `lib/`.
+
+Example config for local testing:
+
+```sh
+bundle exec bin/ai config set PROVIDER=openai
+bundle exec bin/ai config set OPENAI_KEY=<your token>
+# or: PROVIDER=anthropic + ANTHROPIC_KEY=<your token>
 ```
 
 ## Common Issues
 
-### 429 error
+### Rate limit / quota errors
 
-This is due to incorrect billing setup or excessive quota usage. Please follow [this guide](https://help.openai.com/en/articles/6891831-error-code-429-you-exceeded-your-current-quota-please-check-your-plan-and-billing-details) to fix it.
-
-You can activate billing at [this link](https://platform.openai.com/account/billing/overview).
+Usually billing or quota on the configured provider (OpenAI or Anthropic). Check that provider’s console billing page and that the matching API key is set in `~/.aicli`.
 
 ## Motivation
 
