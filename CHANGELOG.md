@@ -1,3 +1,14 @@
+## 0.2.2
+
+- Improve `ai update`: compare installed version with RubyGems, install latest explicitly, clearer status messages
+
+## 0.2.1
+
+- Fix provider/model sync so Anthropic models are not sent to OpenAI
+- Show active `provider / model` on each run
+- Clearer error when a model is unavailable for the API key
+- `config set MODEL=...` infers PROVIDER from the RubyLLM registry
+
 ## 0.2.0
 
 - Add Anthropic provider alongside OpenAI

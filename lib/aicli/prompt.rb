@@ -19,6 +19,7 @@ module AiCli
       pastel = Pastel.new
       puts ''
       puts "┌  #{pastel.cyan(Helpers::Constants::PROJECT_NAME)}"
+      puts pastel.dim("   #{config['PROVIDER']} / #{config['MODEL']}")
 
       the_prompt = use_prompt.nil? || use_prompt.strip.empty? ? ask_prompt : use_prompt
 

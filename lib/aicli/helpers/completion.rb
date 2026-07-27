@@ -169,6 +169,22 @@ module AiCli
           MSG
         end
 
+        if message.match?(/model_not_found|does not exist|do not have access/i)
+          raise KnownError, <<~MSG
+            The configured model is not available for this API key/provider.
+
+            Fix with:
+              #{Constants::COMMAND_NAME} config
+            or:
+              #{Constants::COMMAND_NAME} config set MODEL=#{Llm.default_model_for('anthropic')}
+              #{Constants::COMMAND_NAME} config set PROVIDER=anthropic
+
+            Full message:
+
+            #{message}
+          MSG
+        end
+
         raise KnownError, <<~MSG
           Request to the LLM provider failed:
 

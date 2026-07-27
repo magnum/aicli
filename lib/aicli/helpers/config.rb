@@ -50,21 +50,43 @@ module AiCli
           parsed['MODEL'] = Llm.default_model_for(parsed['PROVIDER'])
         end
 
+        provider, model = Llm.resolve_provider_and_model(parsed)
+        parsed['PROVIDER'] = provider
+        parsed['MODEL'] = model
         parsed
       end
 
       def set(key_values)
         config = read_config_file
+        updates = {}
 
         key_values.each do |key, value|
           unless CONFIG_PARSERS.key?(key)
             raise KnownError, "#{I18n.t('Invalid config property')}: #{key}"
           end
 
-          parsed = CONFIG_PARSERS[key].call(value)
-          config[key] = parsed.to_s
+          updates[key] = CONFIG_PARSERS[key].call(value).to_s
         end
 
+        # Keep PROVIDER and MODEL aligned with the RubyLLM registry.
+        if updates.key?('MODEL') && !updates['MODEL'].empty?
+          model_provider = Llm.provider_for_model(updates['MODEL'])
+          if model_provider
+            updates['PROVIDER'] = model_provider unless updates.key?('PROVIDER')
+          end
+        end
+
+        if updates.key?('PROVIDER')
+          provider = Llm.normalize_provider(updates['PROVIDER'])
+          updates['PROVIDER'] = provider
+          next_model = updates['MODEL'] || config['MODEL']
+          known_ids = Completion.get_models(provider).map { |m| m['id'] }
+          if next_model.to_s.empty? || !known_ids.include?(next_model)
+            updates['MODEL'] = Llm.default_model_for(provider) unless updates.key?('MODEL') && known_ids.include?(updates['MODEL'])
+          end
+        end
+
+        updates.each { |key, value| config[key] = value }
         File.write(CONFIG_PATH, stringify_ini(config))
       end
 
@@ -132,6 +154,7 @@ module AiCli
               next
             end
             model = prompt.select(I18n.t('Pick a model.')) do |menu|
+              menu.default cfg['MODEL'] if models.any? { |m| m['id'] == cfg['MODEL'] }
               models.each do |m|
                 label = m['name'].empty? || m['name'] == m['id'] ? m['id'] : "#{m['name']} (#{m['id']})"
                 menu.choice label, m['id']

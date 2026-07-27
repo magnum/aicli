@@ -35,13 +35,45 @@ module AiCli
       end
 
       def build_chat(config)
-        provider = configure!(config)
-        model = config['MODEL'].to_s
-        model = default_model_for(provider) if model.empty?
+        provider, model = resolve_provider_and_model(config)
+        ensure_credentials!(config, provider)
+
+        configure!(config.merge('PROVIDER' => provider, 'MODEL' => model))
 
         opts = { model: model, provider: provider.to_sym }
         opts[:assume_model_exists] = true unless model_known?(model, provider)
         RubyLLM.chat(**opts)
+      end
+
+      # Returns [provider, model], fixing mismatches against the RubyLLM registry.
+      def resolve_provider_and_model(config)
+        provider = normalize_provider(config['PROVIDER'])
+        model = config['MODEL'].to_s
+        model = default_model_for(provider) if model.empty?
+
+        model_provider = provider_for_model(model)
+        if model_provider && model_provider != provider
+          # Prefer the provider that actually owns the selected model.
+          provider = model_provider
+        elsif model_provider.nil? && !model_known?(model, provider)
+          # Unknown id for this provider: fall back to a safe default.
+          model = default_model_for(provider)
+        end
+
+        [provider, model]
+      end
+
+      def provider_for_model(model_id)
+        return nil if model_id.to_s.empty?
+
+        info = RubyLLM.models.find(model_id)
+        normalize_provider(info.provider)
+      rescue StandardError
+        # Try each known provider explicitly (aliases can be provider-specific).
+        PROVIDERS.each do |provider|
+          return provider if model_known?(model_id, provider)
+        end
+        nil
       end
 
       def list_chat_models(provider)
@@ -91,7 +123,7 @@ module AiCli
         outputs = Array(model.modalities&.output).map(&:to_s)
         return false unless outputs.include?('text')
 
-        !model.id.match?(/tts|transcribe|realtime|whisper|embedding|moderation|dall-e|imagen|search-preview|babbage|davinci|ada-|curie/i)
+        !model.id.match?(/tts|transcribe|realtime|whisper|embedding|moderation|dall-e|imagen|search-preview|babbage|davinci|ada-|curie|instruct/i)
       end
     end
   end
