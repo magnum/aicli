@@ -1,3 +1,7 @@
+## 0.2.3
+
+- In `ai chat`, detect suggested shell commands and ask to run them, then continue the conversation
+
 ## 0.2.2
 
 - Improve `ai update`: compare installed version with RubyGems, install latest explicitly, clearer status messages

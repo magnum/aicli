@@ -42,7 +42,41 @@ module AiCli
 
       # Multi-turn chat helper used by `aicli chat`.
       def start_chat(config)
-        Llm.build_chat(config)
+        chat = Llm.build_chat(config)
+        chat.with_instructions(chat_system_prompt)
+        chat
+      end
+
+      def chat_system_prompt
+        <<~PROMPT
+          You are aicli, a terminal assistant. The user is asking for shell commands.
+
+          Target OS: #{OsDetect.operating_system_name}
+          Target shell: #{OsDetect.detect_shell}
+
+          Whenever you suggest a command the user can run, put the exact runnable command
+          alone inside a markdown fenced code block, for example:
+
+          ```
+          ls -la
+          ```
+
+          Prefer a single command. You may briefly explain outside the fence.
+          Do not wrap non-runnable prose in fences.
+        PROMPT
+      end
+
+      def extract_commands(text)
+        return [] if text.nil? || text.empty?
+
+        blocks = text.scan(/```(?:[a-zA-Z0-9_+-]*)\s*\n?(.*?)```/m)
+                     .flatten
+                     .map { |block| block.strip.gsub(/\A`+|`+\z/, '') }
+                     .map(&:strip)
+                     .reject(&:empty?)
+
+        # Prefer the last fenced command if several were suggested.
+        blocks
       end
 
       def stream_chat_message(chat, message, writer:)
