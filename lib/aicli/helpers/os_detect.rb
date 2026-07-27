@@ -3,7 +3,7 @@
 require 'etc'
 require 'rbconfig'
 
-module AiShell
+module AiCli
   module Helpers
     module OsDetect
       module_function

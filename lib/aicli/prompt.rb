@@ -6,7 +6,7 @@ require 'pastel'
 require 'tty-prompt'
 require 'tty-spinner'
 
-module AiShell
+module AiCli
   module Prompt
     module_function
 

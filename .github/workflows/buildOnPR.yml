@@ -21,4 +21,4 @@ jobs:
         run: bundle install
 
       - name: Build gem
-        run: gem build ai-shell.gemspec
+        run: gem build aicli.gemspec

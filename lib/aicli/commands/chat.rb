@@ -4,7 +4,7 @@ require 'pastel'
 require 'tty-prompt'
 require 'tty-spinner'
 
-module AiShell
+module AiCli
   module Commands
     module Chat
       module_function
@@ -47,7 +47,7 @@ module AiShell
           enumerator = stream_lines.each
           read_response = Helpers::Completion.read_data(enumerator)
 
-          spinner.success(pastel.green('AI Shell:'))
+          spinner.success(pastel.green('aicli:'))
           puts ''
           full_response = read_response.call(->(chunk) { print chunk })
           chat_history << { 'role' => 'assistant', 'content' => full_response }

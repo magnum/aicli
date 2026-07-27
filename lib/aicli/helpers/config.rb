@@ -4,10 +4,11 @@ require 'fileutils'
 require 'pastel'
 require 'tty-prompt'
 
-module AiShell
+module AiCli
   module Helpers
     module Config
-      CONFIG_PATH = File.join(Dir.home, '.ai-shell')
+      CONFIG_PATH = File.join(Dir.home, '.aicli')
+      LEGACY_CONFIG_PATH = File.join(Dir.home, '.ai-shell')
 
       CONFIG_PARSERS = {
         'OPENAI_KEY' => lambda { |key|
@@ -120,9 +121,14 @@ module AiShell
       end
 
       def read_config_file
-        return {} unless File.exist?(CONFIG_PATH)
+        path = if File.exist?(CONFIG_PATH)
+                 CONFIG_PATH
+               elsif File.exist?(LEGACY_CONFIG_PATH)
+                 LEGACY_CONFIG_PATH
+               end
+        return {} unless path
 
-        parse_ini(File.read(CONFIG_PATH))
+        parse_ini(File.read(path))
       end
 
       def parse_ini(content)

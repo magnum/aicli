@@ -2,7 +2,7 @@
 
 require 'yaml'
 
-module AiShell
+module AiCli
   module Helpers
     module I18n
       LANGUAGES = {

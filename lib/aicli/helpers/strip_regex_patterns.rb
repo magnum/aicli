@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module AiShell
+module AiCli
   module Helpers
     module StripRegexPatterns
       module_function

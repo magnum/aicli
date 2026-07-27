@@ -3,7 +3,7 @@
 require 'thor'
 require 'pastel'
 
-module AiShell
+module AiCli
   class CLI < Thor
     KNOWN_COMMANDS = %w[config chat update help version tree].freeze
 
@@ -20,7 +20,7 @@ module AiShell
       help_flag = args.delete('--help') || args.delete('-h')
 
       if version_flag
-        puts AiShell::VERSION
+        puts AiCli::VERSION
         return
       end
 
@@ -80,7 +80,7 @@ module AiShell
       Commands::Chat.run
     end
 
-    desc 'update', 'Update AI Shell to the latest version'
+    desc 'update', 'Update aicli to the latest version'
     def update
       init_i18n
       Commands::Update.run
@@ -89,7 +89,7 @@ module AiShell
     map %w[--version -v] => :__print_version
     desc 'version', 'Print version'
     def __print_version
-      puts AiShell::VERSION
+      puts AiCli::VERSION
     end
 
     private

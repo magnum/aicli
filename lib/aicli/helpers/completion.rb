@@ -5,7 +5,7 @@ require 'net/http'
 require 'uri'
 require 'thread'
 
-module AiShell
+module AiCli
   module Helpers
     module Completion
       EXPLAIN_IN_SECOND_REQUEST = true

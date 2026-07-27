@@ -2,7 +2,7 @@
 
 require 'pastel'
 
-module AiShell
+module AiCli
   module Commands
     module Config
       module_function

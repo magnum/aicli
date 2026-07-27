@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module AiShell
+module AiCli
   module Helpers
     module ShellHistory
       module_function

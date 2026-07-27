@@ -13,16 +13,16 @@ bundle install
 ## Running locally
 
 ```sh
-bundle exec bin/ai --help
-bundle exec bin/ai config set OPENAI_KEY=<your token>
-bundle exec bin/ai list all log files
+bundle exec bin/aicli --help
+bundle exec bin/aicli config set OPENAI_KEY=<your token>
+bundle exec bin/aicli list all log files
 ```
 
 ## Building the gem
 
 ```sh
-gem build ai-shell.gemspec
-gem install ./ai-shell-*.gem
+gem build aicli.gemspec
+gem install ./aicli-*.gem
 ```
 
 Or with Rake:
@@ -34,7 +34,7 @@ bundle exec rake install
 ## Project structure
 
 ```
-bin/           # Executables (ai, ai-shell)
-lib/ai_shell/  # Ruby source
-locales/       # i18n JSON files
+bin/          # Executables (aicli, ai)
+lib/aicli/    # Ruby source
+locales/      # i18n YAML files
 ```

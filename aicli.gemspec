@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'lib/ai_shell/version'
+require_relative 'lib/aicli/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ai-shell'
-  spec.version       = AiShell::VERSION
+  spec.name          = 'aicli'
+  spec.version       = AiCli::VERSION
   spec.authors       = ['Antonio Molinari']
   spec.email         = ['antoniomolinari@me.com']
 
   spec.summary       = 'A CLI that converts natural language to shell commands.'
-  spec.description   = 'AI Shell turns natural language prompts into runnable shell commands via the OpenAI API. Ruby port inspired by BuilderIO/ai-shell.'
-  spec.homepage      = 'https://github.com/magnum/ai-shell'
+  spec.description   = 'aicli turns natural language prompts into runnable shell commands via the OpenAI API. Ruby port inspired by BuilderIO/ai-shell.'
+  spec.homepage      = 'https://github.com/magnum/aicli'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
 
@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
     'CHANGELOG.md'
   ]
   spec.bindir        = 'bin'
-  spec.executables   = ['ai', 'ai-shell']
+  spec.executables   = ['ai', 'aicli']
   spec.require_paths = ['lib']
 
   spec.add_dependency 'clipboard', '~> 1.3'

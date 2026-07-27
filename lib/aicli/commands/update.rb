@@ -2,7 +2,7 @@
 
 require 'pastel'
 
-module AiShell
+module AiCli
   module Commands
     module Update
       module_function
@@ -10,7 +10,7 @@ module AiShell
       def run
         pastel = Pastel.new
         puts ''
-        command = 'gem update ai-shell'
+        command = 'gem update aicli'
         puts pastel.dim("#{Helpers::I18n.t('Running')}: #{command}")
         puts ''
         system(command)
