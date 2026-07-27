@@ -17,7 +17,7 @@
 
 # AI Shell
 
-Ruby rewrite of the original [@builder.io/ai-shell](https://github.com/BuilderIO/ai-shell) CLI.
+Ruby port by [Antonio Molinari](https://github.com/magnum), inspired by the original [BuilderIO/ai-shell](https://github.com/BuilderIO/ai-shell) CLI.
 
 ## Setup
 
@@ -167,6 +167,8 @@ I am not a bash wizard, and am dying for access to the copilot CLI, and got impa
 
 ## Credit
 
-- Thanks to GitHub Copilot for their amazing tools and the idea for this.
+- Ruby port by [Antonio Molinari](https://github.com/magnum)
+- Inspired by [BuilderIO/ai-shell](https://github.com/BuilderIO/ai-shell)
+- Thanks to GitHub Copilot for their amazing tools and the idea for this
 - Thanks to Hassan and his work on [aicommits](https://github.com/Nutlope/aicommits), which inspired the workflow and some parts of the code and flows
 - Original Node.js implementation by [Builder.io](https://www.builder.io)

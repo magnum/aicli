@@ -21,7 +21,7 @@ module AiShell
 
         puts "\n#{indent}#{pastel.dim("ai-shell v#{AiShell::VERSION}")}"
         puts "\n#{indent}#{I18n.t('Please open a Bug report with the information above')}:"
-        puts "#{indent}https://github.com/BuilderIO/ai-shell/issues/new"
+        puts "#{indent}https://github.com/magnum/ai-shell/issues/new"
       end
     end
   end

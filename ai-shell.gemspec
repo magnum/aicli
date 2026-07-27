@@ -5,17 +5,20 @@ require_relative 'lib/ai_shell/version'
 Gem::Specification.new do |spec|
   spec.name          = 'ai-shell'
   spec.version       = AiShell::VERSION
-  spec.authors       = ['Builder.io']
-  spec.email         = ['']
+  spec.authors       = ['Antonio Molinari']
+  spec.email         = ['antoniomolinari@me.com']
 
   spec.summary       = 'A CLI that converts natural language to shell commands.'
-  spec.description   = 'AI Shell turns natural language prompts into runnable shell commands via the OpenAI API.'
-  spec.homepage      = 'https://github.com/BuilderIO/ai-shell'
+  spec.description   = 'AI Shell turns natural language prompts into runnable shell commands via the OpenAI API. Ruby port inspired by BuilderIO/ai-shell.'
+  spec.homepage      = 'https://github.com/magnum/ai-shell'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
 
+  spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
   spec.metadata['changelog_uri'] = "#{spec.homepage}/blob/main/CHANGELOG.md"
+  spec.metadata['bug_tracker_uri'] = "#{spec.homepage}/issues"
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.files = Dir[
     'lib/**/*',
