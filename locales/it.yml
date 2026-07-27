@@ -65,3 +65,5 @@ Please open a Bug report with the information above: Apri un report di bug con l
 Prompt to run: Prompt da eseguire
 You: Tu
 Ask for a shell command. Type exit to quit.: Chiedi un comando shell. Digita exit per uscire.
+Restored context: Contesto ripristinato
+messages: messaggi

@@ -57,7 +57,7 @@ Ruby port by [Antonio Molinari](https://github.com/magnum), inspired by the orig
    Or use the interactive UI (`aicli config`) to pick provider, key, and model.
    Model lists come from the [RubyLLM](https://rubyllm.com/models/) registry.
 
-   This will create a `.aicli` file in your home directory.
+   Config lives in `~/.aicli/config`. Chat/prompt history is stored in `~/.aicli/context` (last 40 messages) and reloaded on the next run.
 
 ## Usage
 
@@ -195,7 +195,7 @@ bundle exec bin/ai config set OPENAI_KEY=<your token>
 
 ### Rate limit / quota errors
 
-Usually billing or quota on the configured provider (OpenAI or Anthropic). Check that provider’s console billing page and that the matching API key is set in `~/.aicli`.
+Usually billing or quota on the configured provider (OpenAI or Anthropic). Check that provider’s console billing page and that the matching API key is set in `~/.aicli/config`.
 
 ## Motivation
 

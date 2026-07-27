@@ -38,6 +38,7 @@ module AiCli
       puts ''
       puts pastel.dim('•')
 
+      explanation_text = ''
       unless skip_explanation
         spinner = TTY::Spinner.new("[:spinner] #{Helpers::I18n.t('Getting explanation...')}", format: :dots)
         spinner.auto_spin
@@ -50,15 +51,17 @@ module AiCli
           )
           spinner.success(Helpers::I18n.t('Explanation') + ':')
           puts ''
-          explanation[:read_explanation].call(->(chunk) { print chunk })
+          explanation_text = explanation[:read_explanation].call(->(chunk) { print chunk })
           puts ''
           puts ''
           puts pastel.dim('•')
         else
+          explanation_text = info
           spinner.success(Helpers::I18n.t('Explanation') + ':')
         end
       end
 
+      append_prompt_context(the_prompt, script, explanation_text)
       run_or_revise_flow(script, config, silent_mode)
     end
 
@@ -80,11 +83,22 @@ module AiCli
 
     def ask_prompt(initial = nil)
       prompt = TTY::Prompt.new(interrupt: :exit)
+      Helpers::Context.seed_prompt_history(prompt)
       prompt.ask(Helpers::I18n.t('What would you like me to do?')) do |q|
         q.required true
         q.default initial || Helpers::I18n.t('Say hello')
         q.validate(/.+/, Helpers::I18n.t('Please enter a prompt.'))
       end
+    end
+
+    def append_prompt_context(user_prompt, script, explanation)
+      assistant = +"```\n#{script}\n```"
+      assistant << "\n\n#{explanation}" unless explanation.to_s.strip.empty?
+
+      messages = Helpers::Context.load_messages
+      messages << { 'role' => 'user', 'content' => user_prompt.to_s }
+      messages << { 'role' => 'assistant', 'content' => assistant }
+      Helpers::Context.save_messages(messages)
     end
 
     def ask_revision
@@ -176,6 +190,7 @@ module AiCli
     end
 
     private_class_method :init_i18n, :examples, :ask_prompt, :ask_revision,
-                         :run_script, :run_or_revise_flow, :revision_flow
+                         :run_script, :run_or_revise_flow, :revision_flow,
+                         :append_prompt_context
   end
 end

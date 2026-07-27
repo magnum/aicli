@@ -7,7 +7,9 @@ require 'tty-prompt'
 module AiCli
   module Helpers
     module Config
-      CONFIG_PATH = File.join(Dir.home, '.aicli')
+      HOME_DIR = File.join(Dir.home, '.aicli')
+      CONFIG_PATH = File.join(HOME_DIR, 'config')
+      LEGACY_FLAT_CONFIG_PATH = File.join(Dir.home, '.aicli')
       LEGACY_CONFIG_PATH = File.join(Dir.home, '.ai-shell')
 
       CONFIG_PARSERS = {
@@ -35,6 +37,32 @@ module AiCli
       }.freeze
 
       module_function
+
+      def home_dir
+        ensure_home!
+        HOME_DIR
+      end
+
+      def ensure_home!
+        if File.file?(LEGACY_FLAT_CONFIG_PATH) && !File.directory?(LEGACY_FLAT_CONFIG_PATH)
+          migrate_flat_config!
+        else
+          FileUtils.mkdir_p(HOME_DIR)
+        end
+        HOME_DIR
+      end
+
+      def migrate_flat_config!
+        backup = "#{LEGACY_FLAT_CONFIG_PATH}.migrating.#{Process.pid}"
+        File.rename(LEGACY_FLAT_CONFIG_PATH, backup)
+        FileUtils.mkdir_p(HOME_DIR)
+        FileUtils.mv(backup, CONFIG_PATH)
+      rescue StandardError
+        FileUtils.mkdir_p(HOME_DIR)
+        if File.exist?(backup)
+          FileUtils.mv(backup, CONFIG_PATH) unless File.exist?(CONFIG_PATH)
+        end
+      end
 
       def get(cli_config = nil)
         config = read_config_file
@@ -87,6 +115,7 @@ module AiCli
         end
 
         updates.each { |key, value| config[key] = value }
+        ensure_home!
         File.write(CONFIG_PATH, stringify_ini(config))
       end
 
@@ -178,9 +207,11 @@ module AiCli
       end
 
       def read_config_file
-        path = if File.exist?(CONFIG_PATH)
+        ensure_home!
+
+        path = if File.file?(CONFIG_PATH)
                  CONFIG_PATH
-               elsif File.exist?(LEGACY_CONFIG_PATH)
+               elsif File.file?(LEGACY_CONFIG_PATH)
                  LEGACY_CONFIG_PATH
                end
         return {} unless path

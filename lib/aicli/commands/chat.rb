@@ -12,15 +12,23 @@ module AiCli
       def run
         config = Helpers::Config.get
         chat = Helpers::Completion.start_chat(config)
+        restored = Helpers::Context.load_messages
+        Helpers::Context.apply_to_chat(chat) if restored.any?
 
         pastel = Pastel.new
         prompt = TTY::Prompt.new(interrupt: :exit)
         confirm = TTY::Prompt.new(interrupt: :exit, track_history: false)
+        Helpers::Context.seed_prompt_history(prompt)
 
         puts ''
         puts "┌  #{Helpers::I18n.t('Starting new conversation')}"
         puts pastel.dim("   #{config['PROVIDER']} / #{config['MODEL']}")
         puts pastel.dim("   #{Helpers::I18n.t('Ask for a shell command. Type exit to quit.')}")
+        if restored.any?
+          puts pastel.dim(
+            "   #{Helpers::I18n.t('Restored context')}: #{restored.size} #{Helpers::I18n.t('messages')}"
+          )
+        end
 
         loop do
           user_prompt = prompt.ask(pastel.cyan("#{Helpers::I18n.t('You')}:")) do |q|
@@ -29,6 +37,7 @@ module AiCli
           end
 
           if user_prompt.nil? || user_prompt.strip.downcase == 'exit'
+            Helpers::Context.save_from_chat(chat)
             puts "└  #{Helpers::I18n.t('Goodbye!')}"
             break
           end
@@ -57,6 +66,7 @@ module AiCli
           puts ''
           puts ''
 
+          Helpers::Context.save_from_chat(chat)
           offer_to_run_commands(response, confirm, pastel)
         end
       end

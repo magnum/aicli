@@ -66,3 +66,5 @@ Please open a Bug report with the information above: Please open a Bug report wi
 Prompt to run: Prompt to run
 You: You
 Ask for a shell command. Type exit to quit.: Ask for a shell command. Type exit to quit.
+Restored context: Restored context
+messages: messages

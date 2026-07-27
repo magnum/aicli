@@ -1,3 +1,8 @@
+## 0.2.4
+
+- Persist last 40 chat/prompt messages in `~/.aicli/context` and reload on next run
+- Migrate flat `~/.aicli` config file to `~/.aicli/config`
+
 ## 0.2.3
 
 - In `ai chat`, detect suggested shell commands and ask to run them, then continue the conversation
