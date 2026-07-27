@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
+require 'yaml'
 
 module AiShell
   module Helpers
@@ -52,12 +52,12 @@ module AiShell
           return if @current_lang == 'en'
 
           locale_path = File.expand_path(
-            "../../../locales/#{@current_lang}.json",
+            "../../../locales/#{@current_lang}.yml",
             __dir__
           )
 
           @translations = if File.exist?(locale_path)
-                            JSON.parse(File.read(locale_path))
+                            YAML.safe_load(File.read(locale_path), permitted_classes: [String]) || {}
                           else
                             {}
                           end
