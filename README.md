@@ -89,7 +89,7 @@ aicli 'what is my ip address'
 aicli chat
 ```
 
-Ask for shell commands in a multi-turn conversation. When the assistant suggests a command in a code fence, you are asked whether to run it; after it runs (or you decline), chat continues. Type `exit` to quit.
+Ask for shell commands in a multi-turn conversation. When the assistant suggests a command in a code fence, you are asked whether to run it; after it runs (or you decline), chat continues. Press `Ctrl+d` to quit.
 
 ### Silent mode (skip explanations)
 

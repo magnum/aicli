@@ -1,3 +1,11 @@
+## 0.2.6
+
+- Ctrl+C clears the current input line instead of exiting chat/prompt
+
+## 0.2.5
+
+- Fix chat `Run it? (y/n)` input (read from `/dev/tty`; only `y` executes)
+
 ## 0.2.4
 
 - Persist last 40 chat/prompt messages in `~/.aicli/context` and reload on next run
