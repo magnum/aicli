@@ -1,23 +1,8 @@
-<h2 align="center">
-   <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2Fb5b9997cec2c4fffb3e5c5e9bb4fed7d">
-      <img width="300" alt="aicli logo" src="https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2Fb7f9d2d9911a4199a9d26f8ba210b3f8">
-    </picture>
-</h2>
-
-<h4 align="center">
-   Natural language to live shell commands — OpenAI &amp; Anthropic.
-</h4>
-
-<p align="center">
-   Chat with the model and run suggested commands in your shell in one seamless flow.
-</p>
-
-<br>
-
 # aicli
 
-CLI by [Antonio Molinari](https://github.com/magnum). Converts prompts into shell commands, with optional chat mode that can execute them live.
+Natural language to live shell commands — OpenAI & Anthropic.
+
+Chat with the model and run suggested commands in your shell in one seamless flow.
 
 ## Setup
 
@@ -203,4 +188,4 @@ I am not a bash wizard, and am dying for access to the copilot CLI, and got impa
 
 ## Credit
 
-- [Antonio Molinari](https://github.com/magnum)
+Started from [BuilderIO/ai-shell](https://github.com/BuilderIO/ai-shell) (MIT; copyright Builder.io 2023).
