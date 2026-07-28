@@ -51,7 +51,7 @@ module AiCli
               user_prompt,
               writer: lambda { |chunk|
                 unless started
-                  spinner.success(pastel.green('aicli:'))
+                  spinner.success(pastel.green('ai:'))
                   puts ''
                   started = true
                 end
@@ -60,7 +60,7 @@ module AiCli
             )
 
             unless started
-              spinner.success(pastel.green('aicli:'))
+              spinner.success(pastel.green('ai:'))
               puts ''
             end
             puts ''

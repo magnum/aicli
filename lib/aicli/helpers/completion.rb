@@ -40,7 +40,7 @@ module AiCli
         end
       end
 
-      # Multi-turn chat helper used by `aicli chat`.
+      # Multi-turn chat helper used by `ai chat`.
       def start_chat(config)
         chat = Llm.build_chat(config)
         chat.with_instructions(chat_system_prompt)
@@ -49,7 +49,7 @@ module AiCli
 
       def chat_system_prompt
         <<~PROMPT
-          You are aicli, a terminal assistant. The user is asking for shell commands.
+          You are ai, a terminal assistant. The user is asking for shell commands.
 
           Target OS: #{OsDetect.operating_system_name}
           Target shell: #{OsDetect.detect_shell}

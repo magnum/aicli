@@ -4,11 +4,13 @@ Natural language to live shell commands — OpenAI & Anthropic.
 
 Chat with the model and run suggested commands in your shell in one seamless flow.
 
+The gem is named **aicli**; the shell command is **`ai`** (also available as `aicli`).
+
 ## Setup
 
 > Requires Ruby 3.0+
 
-1. Install _aicli_:
+1. Install the gem:
 
    ```sh
    gem install aicli
@@ -28,18 +30,18 @@ Chat with the model and run suggested commands in your shell in one seamless flo
    **OpenAI** (default) — key from [OpenAI](https://platform.openai.com/account/api-keys):
 
    ```sh
-   aicli config set PROVIDER=openai
-   aicli config set OPENAI_KEY=<your token>
+   ai config set PROVIDER=openai
+   ai config set OPENAI_KEY=<your token>
    ```
 
    **Anthropic** — key from [Anthropic](https://console.anthropic.com/settings/keys):
 
    ```sh
-   aicli config set PROVIDER=anthropic
-   aicli config set ANTHROPIC_KEY=<your token>
+   ai config set PROVIDER=anthropic
+   ai config set ANTHROPIC_KEY=<your token>
    ```
 
-   Or use the interactive UI (`aicli config`) to pick provider, key, and model.
+   Or use the interactive UI (`ai config`) to pick provider, key, and model.
    Model lists come from the [RubyLLM](https://rubyllm.com/models/) registry.
 
    Config lives in `~/.aicli/config`. Chat/prompt history is stored in `~/.aicli/context` (last 40 messages) and reloaded on the next run.
@@ -47,31 +49,29 @@ Chat with the model and run suggested commands in your shell in one seamless flo
 ## Usage
 
 ```bash
-aicli <prompt>
+ai <prompt>
 ```
 
 For example:
 
 ```bash
-aicli list all log files
+ai list all log files
 ```
 
 Then you will get an output where you can choose to run the suggested command, revise it via a prompt, edit it, copy it, or cancel.
-
-The short alias `ai` is also available.
 
 ### Special characters
 
 Some shells handle characters like `?` or `*` specially. Wrap the prompt in quotes if needed:
 
 ```bash
-aicli 'what is my ip address'
+ai 'what is my ip address'
 ```
 
 ### Chat mode
 
 ```bash
-aicli chat
+ai chat
 ```
 
 Ask for shell commands in a multi-turn conversation. When the assistant suggests a command in a code fence, you are asked whether to run it; after it runs (or you decline), chat continues. Press `Ctrl+d` to quit.
@@ -79,20 +79,20 @@ Ask for shell commands in a multi-turn conversation. When the assistant suggests
 ### Silent mode (skip explanations)
 
 ```bash
-aicli -s list all log files
+ai -s list all log files
 ```
 
 Or save the preference:
 
 ```bash
-aicli config set SILENT_MODE=true
+ai config set SILENT_MODE=true
 ```
 
 ### Provider and model
 
 ```sh
-aicli config set PROVIDER=openai      # or anthropic
-aicli config set MODEL=gpt-4o-mini    # provider-specific model id
+ai config set PROVIDER=openai      # or anthropic
+ai config set MODEL=gpt-4o-mini    # provider-specific model id
 ```
 
 Defaults: `gpt-4o-mini` (OpenAI), `claude-sonnet-4-6` (Anthropic).
@@ -104,7 +104,7 @@ LLM calls go through [RubyLLM](https://rubyllm.com/), so chat streaming and mode
 Useful for OpenAI-compatible proxies (ignored for Anthropic):
 
 ```sh
-aicli config set OPENAI_API_ENDPOINT=<your proxy endpoint>
+ai config set OPENAI_API_ENDPOINT=<your proxy endpoint>
 ```
 
 Default: `https://api.openai.com/v1`
@@ -131,26 +131,21 @@ Default: `https://api.openai.com/v1`
 | Italian             | it      |
 
 ```sh
-aicli config set LANGUAGE=zh-Hans
+ai config set LANGUAGE=zh-Hans
 ```
 
 ### Config UI
 
 ```bash
-aicli config
+ai config
 ```
 
 ### Upgrading
 
 ```bash
-aicli --version
-gem update aicli
-```
-
-Or:
-
-```bash
-aicli update
+ai --version
+ai update
+# or: gem update aicli
 ```
 
 ## Development
@@ -166,7 +161,7 @@ bundle exec bin/ai chat
 bundle exec bin/ai list all log files
 ```
 
-`bin/aicli` is equivalent to `bin/ai`. `bundle exec` loads dependencies from the Gemfile and code from `lib/`.
+`bundle exec` loads dependencies from the Gemfile and code from `lib/`. `bin/aicli` is an alias of `bin/ai`.
 
 Example config for local testing:
 

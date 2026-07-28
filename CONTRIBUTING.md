@@ -13,11 +13,11 @@ bundle install
 ## Running locally
 
 ```sh
-bundle exec bin/aicli --help
-bundle exec bin/aicli config set PROVIDER=openai
-bundle exec bin/aicli config set OPENAI_KEY=<your token>
+bundle exec bin/ai --help
+bundle exec bin/ai config set PROVIDER=openai
+bundle exec bin/ai config set OPENAI_KEY=<your token>
 # or: PROVIDER=anthropic + ANTHROPIC_KEY=<your token>
-bundle exec bin/aicli list all log files
+bundle exec bin/ai list all log files
 ```
 
 ## Building the gem
@@ -36,7 +36,7 @@ bundle exec rake install
 ## Project structure
 
 ```
-bin/          # Executables (aicli, ai)
+bin/          # Executables (ai primary, aicli alias)
 lib/aicli/    # Ruby source
 locales/      # i18n YAML files
 ```

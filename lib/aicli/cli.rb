@@ -80,7 +80,7 @@ module AiCli
       Commands::Chat.run
     end
 
-    desc 'update', 'Update aicli to the latest version'
+    desc 'update', 'Update the aicli gem to the latest version'
     def update
       init_i18n
       Commands::Update.run

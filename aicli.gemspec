@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['antoniomolinari@me.com']
 
   spec.summary       = 'Natural language to live shell commands, with OpenAI and Anthropic.'
-  spec.description   = 'aicli turns natural language into runnable shell commands using OpenAI or Anthropic. Chat with the model and execute suggested commands live in your shell in one seamless flow.'
+  spec.description   = 'ai turns natural language into runnable shell commands using OpenAI or Anthropic. Chat with the model and execute suggested commands live in your shell in one seamless flow. Install the aicli gem, then run the ai command.'
   spec.homepage      = 'https://github.com/magnum/aicli'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
