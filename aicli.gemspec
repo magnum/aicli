@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Antonio Molinari']
   spec.email         = ['antoniomolinari@me.com']
 
-  spec.summary       = 'A CLI that converts natural language to shell commands.'
-  spec.description   = 'aicli turns natural language prompts into runnable shell commands via the OpenAI API. Ruby port inspired by BuilderIO/ai-shell.'
+  spec.summary       = 'Natural language to live shell commands, with OpenAI and Anthropic.'
+  spec.description   = 'aicli turns natural language into runnable shell commands using OpenAI or Anthropic. Chat with the model and execute suggested commands live in your shell in one seamless flow.'
   spec.homepage      = 'https://github.com/magnum/aicli'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'

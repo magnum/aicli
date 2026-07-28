@@ -6,18 +6,18 @@
 </h2>
 
 <h4 align="center">
-   A CLI that converts natural language to shell commands.
+   Natural language to live shell commands — OpenAI &amp; Anthropic.
 </h4>
 
 <p align="center">
-   Inspired by the <a href="https://githubnext.com/projects/copilot-cli">GitHub Copilot X CLI</a>, but open source for everyone.
+   Chat with the model and run suggested commands in your shell in one seamless flow.
 </p>
 
 <br>
 
 # aicli
 
-Ruby port by [Antonio Molinari](https://github.com/magnum), inspired by the original [BuilderIO/ai-shell](https://github.com/BuilderIO/ai-shell) CLI.
+CLI by [Antonio Molinari](https://github.com/magnum). Converts prompts into shell commands, with optional chat mode that can execute them live.
 
 ## Setup
 
@@ -203,8 +203,4 @@ I am not a bash wizard, and am dying for access to the copilot CLI, and got impa
 
 ## Credit
 
-- Ruby port by [Antonio Molinari](https://github.com/magnum)
-- Inspired by [BuilderIO/ai-shell](https://github.com/BuilderIO/ai-shell)
-- Thanks to GitHub Copilot for their amazing tools and the idea for this
-- Thanks to Hassan and his work on [aicommits](https://github.com/Nutlope/aicommits), which inspired the workflow and some parts of the code and flows
-- Original Node.js implementation by [Builder.io](https://www.builder.io)
+- [Antonio Molinari](https://github.com/magnum)
